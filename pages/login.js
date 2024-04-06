@@ -21,7 +21,7 @@ function LoginPage() {
       email,
       password,
       callbackUrl: `${process.env.NEXT_PUBLIC_NEXTAUTH_URL}`,
-      redirect: false,
+      redirect: true,
     });
 
     if (res?.ok) {
