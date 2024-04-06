@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { validateEmail } from "../../lib/utils";
+import { validateEmail } from "../lib/utils";
 import AuthLayout from "@/components/layout/AuthLayout";
 import { signIn } from "next-auth/react";
 import { useRouter } from "next/router";
@@ -60,13 +60,13 @@ function LoginPage() {
 
   if (isLoading) {
     return (
-      <AuthLayout>
+      <div>
         <p className="flex h-full">Loading...</p>;
-      </AuthLayout>
+      </div>
     );
   }
   return (
-    <AuthLayout>
+    <div>
       <div className="flex justify-center items-center m-auto p-3">
         <form
           onSubmit={handleSubmit}
@@ -132,7 +132,7 @@ function LoginPage() {
           </div>
         </form>
       </div>
-    </AuthLayout>
+    </div>
   );
 }
 
