@@ -10,6 +10,7 @@ function LoginPage() {
   const [emailInPutError, setEmailInputError] = useState(false);
   const [passwordInPutError, setPasswordInputError] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const router = useRouter();
 
   useEffect(() => {
     validate();
@@ -17,24 +18,26 @@ function LoginPage() {
 
   async function handleSubmit(e) {
     e.preventDefault();
-    let res = await signIn("credentials", {
+    setIsLoading(true);
+    const res = await signIn("credentials", {
       email,
       password,
       callbackUrl: `${process.env.NEXT_PUBLIC_NEXTAUTH_URL}`,
-      redirect: true,
+      // 移除 redirect: true 選項
     });
 
+    setIsLoading(false);
+
     if (res?.ok) {
-      // toast success
-      console.log("success");
-      return;
+      // 顯示成功訊息
+      console.log("成功");
+      // 手動導向到所需頁面
+      router.push("/your-desired-path");
     } else {
-      // Toast failed
-      setError("Failed! Check you input and try again.");
-      // return;
-      console.log("Failed", res);
+      // 顯示失敗訊息
+      setError("失敗! 請檢查您的輸入並重試。");
+      console.log("失敗", res);
     }
-    return res;
   }
 
   function validate() {
@@ -51,70 +54,69 @@ function LoginPage() {
       setPasswordInputError(false);
     }
   }
+
   return (
-      <div className="flex justify-center items-center m-auto p-3">
-        <form
-          onSubmit={handleSubmit}
-          className="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4"
-        >
-          <div className="mb-4">
-            <label
-              className="block text-gray-700 text-sm font-bold mb-2"
-              htmlFor="email"
-            >
-              Email
-            </label>
-            <input
-              className={`border-${
-                emailInPutError ? "red-500" : ""
-              } shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline`}
-              id="email"
-              type="text"
-              placeholder="Email"
-              onChange={(e) => {
-                setEmail(e.target.value);
-              }}
-            />
-          </div>
-          <div className="mb-6">
-            <label
-              className="block text-gray-700 text-sm font-bold mb-2"
-              htmlFor="password"
-            >
-              Password
-            </label>
-            <input
-              className={` border-${
-                passwordInPutError ? "red-500" : ""
-              } shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 mb-3 leading-tight focus:outline-none focus:shadow-outline`}
-              id="password"
-              type="password"
-              placeholder="******************"
-              onChange={(e) => {
-                setPassword(e.target.value);
-              }}
-            />
-            <p className="text-red-500 text-xs italic">
-              Please choose a password.
-            </p>
-          </div>
-          <div className="flex items-center justify-between">
-            <button
-              className="bg-blue-500  hover:bg-blue-700 text-white font-bold py-2  px-4 rounded  focus:outline-none  focus:shadow-outline"
-              type="submit"
-              disabled={isLoading ? true : false}
-            >
-              {isLoading ? "Loading..." : "Sign In"}
-            </button>
-            <a
-              className="inline-block align-baseline font-bold text-sm text-blue-500 hover:text-blue-800"
-              href="#"
-            >
-              Forgot Password?
-            </a>
-          </div>
-        </form>
-      </div>
+    <div className="flex justify-center items-center m-auto p-3">
+      <form
+        onSubmit={handleSubmit}
+        className="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4"
+      >
+        <div className="mb-4">
+          <label
+            className="block text-gray-700 text-sm font-bold mb-2"
+            htmlFor="email"
+          >
+            電子郵件
+          </label>
+          <input
+            className={`border-${
+              emailInPutError ? "red-500" : ""
+            } shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline`}
+            id="email"
+            type="text"
+            placeholder="電子郵件"
+            onChange={(e) => {
+              setEmail(e.target.value);
+            }}
+          />
+        </div>
+        <div className="mb-6">
+          <label
+            className="block text-gray-700 text-sm font-bold mb-2"
+            htmlFor="password"
+          >
+            密碼
+          </label>
+          <input
+            className={` border-${
+              passwordInPutError ? "red-500" : ""
+            } shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 mb-3 leading-tight focus:outline-none focus:shadow-outline`}
+            id="password"
+            type="password"
+            placeholder="******************"
+            onChange={(e) => {
+              setPassword(e.target.value);
+            }}
+          />
+          <p className="text-red-500 text-xs italic">請輸入密碼。</p>
+        </div>
+        <div className="flex items-center justify-between">
+          <button
+            className="bg-blue-500  hover:bg-blue-700 text-white font-bold py-2  px-4 rounded  focus:outline-none  focus:shadow-outline"
+            type="submit"
+            disabled={isLoading ? true : false}
+          >
+            {isLoading ? "載入中..." : "登入"}
+          </button>
+          <a
+            className="inline-block align-baseline font-bold text-sm text-blue-500 hover:text-blue-800"
+            href="#"
+          >
+            忘記密碼?
+          </a>
+        </div>
+      </form>
+    </div>
   );
 }
 
