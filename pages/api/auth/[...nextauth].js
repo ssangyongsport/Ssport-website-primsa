@@ -1,61 +1,80 @@
-import NextAuth from "next-auth"
-import GithubProvider from "next-auth/providers/github"
-import GoogleProvider from "next-auth/providers/google"
-import LineProvider from "next-auth/providers/line"
-import DiscordProvider from "next-auth/providers/discord"
+import NextAuth from "next-auth";
+import { PrismaAdapter } from "@next-auth/prisma-adapter";
+import CredentialsProvider from "next-auth/providers/credentials";
+import prisma from "../../../lib/prisma";
 
-// 管理员邮箱地址列表
-const adminEmails = ['ssangyongsports1@gmail.com', 'admin@example.com']
-
-export const authOptions = {
-  // 配置一个或多个认证提供者
+let userAccount;
+const options = {
   providers: [
-    GithubProvider({
-      clientId: process.env.GITHUB_ID,
-      clientSecret: process.env.GITHUB_SECRET,
-    }),
-    GoogleProvider({
-      clientId: process.env.Google_ID,
-      clientSecret: process.env.Google_SECRET,
-      authorization: {
-        params: {},
+    CredentialsProvider({
+      id: "credentials",
+      name: "Credentials",
+      async authorize(credentials, req) {
+        const userCredentials = {
+          email: credentials.email,
+          password: credentials.password,
+        };
+
+        const res = await fetch(
+          `${process.env.NEXT_PUBLIC_NEXTAUTH_URL}/api/user/login`,
+          {
+            method: "POST",
+            body: JSON.stringify(userCredentials),
+            headers: {
+              "Content-Type": "application/json",
+            },
+          }
+        );
+        const user = await res.json();
+
+        if (res.ok && user) {
+          userAccount = user;
+          console.log(userAccount);
+          return user;
+        } else {
+          return null;
+        }
       },
-      checks: ['none'],
-    }),
-    LineProvider({
-      clientId: process.env.Line_ID,
-      clientSecret: process.env.Line_SECRET,
-    }),
-    DiscordProvider({
-      clientId: process.env.Discord_ID,
-      clientSecret: process.env.Discord_SECRET,
     }),
   ],
-  theme: {
-    logo: "/logo.png", // 图片的绝对URL
+
+  adapter: PrismaAdapter(prisma),
+  secret: process.env.NEXTAUTH_SECRET,
+  session: { strategy: "jwt", maxAge: 24 * 60 * 60 },
+
+  jwt: {
+    secret: process.env.NEXTAUTH_SECRET,
+    maxAge: 60 * 60 * 24 * 30,
+    encryption: true,
   },
+
+  pages: {
+    signIn: "/login",
+    signOut: "/login",
+    error: "/login",
+  },
+
   callbacks: {
-    async jwt({ token, account, user }) {
-      // 在登录后将访问令牌持久化到令牌中
-      if (account) {
-        token.accessToken = account.access_token
+    async session(session, user, token) {
+      if (user !== null) {
+        // console.log("User Account ", user);
+        session.user = user;
       }
-
-      // 根据用户信息赋予角色
-      if (user && user.email) {
-        const isAdmin = adminEmails.includes(user.email)
-        token.role = isAdmin ? 'admin' : 'user'
-      }
-
-      return token
+      // console.log(session, "as session user");
+      return await session;
     },
-    async session({ session, token }) {
-      // 向客户端发送访问令牌等属性
-      session.accessToken = token.accessToken
-      session.user.role = token.role
-      return session
+
+    async jwt({ token, user }) {
+      const isSignedIn = user ? true : false;
+
+      if (isSignedIn) {
+        token.accessToken =
+          user.id.toString() + "-" + user.email + "-" + user.name;
+      }
+
+      return await token;
     },
   },
-}
+};
 
-export default NextAuth(authOptions)
+export default (req, res) => NextAuth(req, res, options);
