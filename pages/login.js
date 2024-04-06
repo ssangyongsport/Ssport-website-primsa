@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { validateEmail } from "../lib/utils";
+import { validateEmail } from "../../lib/utils";
 import { signIn } from "next-auth/react";
 import { useRouter } from "next/router";
 
@@ -11,14 +11,11 @@ function LoginPage() {
   const [passwordInPutError, setPasswordInputError] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
-  const router = useRouter();
-
   useEffect(() => {
     validate();
   }, [email, password]);
 
   async function handleSubmit(e) {
-    setIsLoading(true);
     e.preventDefault();
     let res = await signIn("credentials", {
       email,
@@ -26,12 +23,10 @@ function LoginPage() {
       callbackUrl: `${process.env.NEXT_PUBLIC_NEXTAUTH_URL}`,
       redirect: false,
     });
-    setIsLoading(false);
 
     if (res?.ok) {
-      // toastsuccess
+      // toast success
       console.log("success");
-      router.push("/");
       return;
     } else {
       // Toast failed
@@ -56,26 +51,12 @@ function LoginPage() {
       setPasswordInputError(false);
     }
   }
-
-  if (isLoading) {
-    return (
-      <div>
-        <p className="flex h-full">Loading...</p>;
-      </div>
-    );
-  }
   return (
-    <div>
       <div className="flex justify-center items-center m-auto p-3">
         <form
           onSubmit={handleSubmit}
           className="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4"
         >
-          {error && (
-            <div className="flex w-full py-3 p-1 rounded-md bg-red-500 text-white">
-              {error}
-            </div>
-          )}
           <div className="mb-4">
             <label
               className="block text-gray-700 text-sm font-bold mb-2"
@@ -113,6 +94,9 @@ function LoginPage() {
                 setPassword(e.target.value);
               }}
             />
+            <p className="text-red-500 text-xs italic">
+              Please choose a password.
+            </p>
           </div>
           <div className="flex items-center justify-between">
             <button
@@ -131,7 +115,6 @@ function LoginPage() {
           </div>
         </form>
       </div>
-    </div>
   );
 }
 
