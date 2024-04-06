@@ -1,4 +1,4 @@
-import AuthLayout from "@/components/layout/AuthLayout";
+
 import { useRouter } from "next/router";
 import React, { useEffect, useState } from "react";
 
@@ -48,7 +48,7 @@ function SignIn() {
     }
   }
   return (
-    <AuthLayout>
+    <div>
       <div className="flex justify-center items-center m-auto p-3">
         <form
           onSubmit={handleSubmit}
@@ -144,7 +144,7 @@ function SignIn() {
           </div>
         </form>
       </div>
-    </AuthLayout>
+    </div>
   );
 }
 
