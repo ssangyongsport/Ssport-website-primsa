@@ -32,8 +32,10 @@
     "next-docs-ui": "^3.0.0",
     "next-docs-zeta": "^3.0.0",
     "nprogress": "^0.2.0",
+    "prisma": "^5.12.1",
     "react": "18.2.0",
     "react-dom": "18.2.0",
+   "resend": "^3.2.0",
     "typescript": "5.0.2"
   },
   "devDependencies": {
