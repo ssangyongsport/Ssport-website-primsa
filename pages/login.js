@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from "react";
 import { validateEmail } from "../lib/utils";
-
 import { signIn } from "next-auth/react";
 import { useRouter } from "next/router";
 
